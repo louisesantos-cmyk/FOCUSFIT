@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-dark: #0f040a;
+    --card-dark: #190813;
+    --card-border-dark: #3b122c;
+    --accent-pink: #ec4899;
+    --accent-hot-pink: #f43f5e;
+    --accent-rose: #fb7185;
+    --accent-light-pink: #f472b6;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(236, 72, 153, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 72, 153, 0.5);
+}
+
+@keyframes pulseGlowPink {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(236, 72, 153, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(244, 63, 94, 0.55);
+  }
+}
+
+.glow-streak {
+  animation: pulseGlowPink 3s infinite ease-in-out;
+}

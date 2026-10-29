@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOCUSFIT — Personal Alimentar & Disciplina Diária</title>
+  <meta name="description" content="FOCUSFIT: Desenvolva disciplina, mantenha sua dieta com facilidade e construa uma ofensiva diária de hábitos saudáveis em tons de rosa.">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      
+      <!-- Brand Logo -->
+      <div class="app-brand" onclick="switchTab('dashboard')">
+        <div class="brand-icon-box">
+          <div class="brand-icon-inner">
+            <i data-lucide="flame" style="width: 22px; height: 22px;"></i>
+          </div>
+        </div>
+        <div>
+          <div class="brand-text-title">FOCUS<span class="brand-pink-text">FIT</span></div>
+          <span class="brand-subtitle">Personal Alimentar</span>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        
+        <!-- Streak Button -->
+        <button class="streak-pill-btn" onclick="switchTab('calendar')" title="Ver calendário de ofensiva">
+          <div class="flame-icon-wrap" id="header-flame-icon">
+            <i data-lucide="flame" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div>
+            <div style="font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+              <span id="header-streak-count">0</span>
+              <span style="font-size: 10px; text-transform: uppercase; color: var(--pink-400);">dias</span>
+            </div>
+          </div>
+        </button>
+
+        <!-- User XP & Level Pill -->
+        <button class="btn btn-secondary" onclick="switchTab('achievements')" style="padding: 6px 14px; font-size: 12px;" title="Ver Conquistas & XP">
+          <i data-lucide="sparkles" style="width: 14px; height: 14px; color: var(--pink-300);"></i>
+          <span id="header-level-badge">Nível 1</span>
+          <span id="header-xp-badge" style="color: var(--pink-300); font-size: 11px;">280 XP</span>
+        </button>
+
+        <!-- Sound Toggle -->
+        <button class="icon-btn" id="btn-toggle-sound" onclick="toggleSound()" title="Alternar Efeitos Sonoros">
+          <i data-lucide="volume-2" style="width: 18px; height: 18px;"></i>
+        </button>
+
+        <!-- Notifications Bell -->
+        <div style="position: relative;">
+          <button class="icon-btn" id="btn-notifications" onclick="toggleNotificationsDropdown()" title="Lembretes & Notificações">
+            <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+            <span id="notif-badge" style="display: none; position: absolute; top: 4px; right: 4px; background: var(--pink-500); color: white; border-radius: 99px; font-size: 10px; font-weight: 800; width: 16px; height: 16px; line-height: 16px; text-align: center;">0</span>
+          </button>
+
+          <!-- Notifications Dropdown -->
+          <div class="notifications-dropdown" id="notifications-panel">
+            <div style="padding: 14px 18px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: rgba(236,72,153,0.1);">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="bell" style="width: 16px; height: 16px; color: var(--pink-400);"></i>
+                <h4 style="font-size: 13px; font-weight: 800;">Lembretes & Alertas</h4>
+              </div>
+              <button class="btn-ghost" onclick="toggleNotificationsDropdown()" style="border: none; cursor: pointer; color: var(--text-muted);">
+                <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+              </button>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 18px; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.3); font-size: 11px;">
+              <button class="btn-ghost" onclick="markAllNotificationsAsRead()" style="border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="check" style="width: 12px; height: 12px;"></i> Marcar lidas
+              </button>
+              <button class="btn-ghost" onclick="sendTestNotification()" style="border: none; cursor: pointer; color: var(--pink-400); font-weight: 700;">
+                Testar Lembrete
+              </button>
+              <button class="btn-ghost" onclick="clearNotifications()" style="border: none; cursor: pointer; color: var(--rose-400); display: flex; align-items: center; gap: 4px;">
+                <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i> Limpar
+              </button>
+            </div>
+
+            <div id="notifications-list" style="max-height: 320px; overflow-y: auto;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- App Body Layout -->
+  <div class="app-layout">
+    
+    <!-- Desktop Sidebar -->
+    <aside class="app-sidebar">
+      <nav class="sidebar-nav">
+        <button class="nav-link active" data-tab="dashboard" onclick="switchTab('dashboard')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i></div>
+            <span>Dashboard</span>
+          </div>
+        </button>
+
+        <button class="nav-link" data-tab="mission" onclick="switchTab('mission')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="check-square" style="width: 18px; height: 18px;"></i></div>
+            <span>Minha Missão</span>
+          </div>
+          <span class="nav-badge" id="sidebar-mission-badge">0/6</span>
+        </button>
+
+        <button class="nav-link" data-tab="planning" onclick="switchTab('planning')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="utensils" style="width: 18px; height: 18px;"></i></div>
+            <span>Planejamento</span>
+          </div>
+        </button>
+
+        <button class="nav-link" data-tab="calendar" onclick="switchTab('calendar')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="calendar" style="width: 18px; height: 18px;"></i></div>
+            <span>Calendário</span>
+          </div>
+        </button>
+
+        <button class="nav-link" data-tab="achievements" onclick="switchTab('achievements')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="trophy" style="width: 18px; height: 18px;"></i></div>
+            <span>Conquistas</span>
+          </div>
+        </button>
+
+        <button class="nav-link" data-tab="stats" onclick="switchTab('stats')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="bar-chart-3" style="width: 18px; height: 18px;"></i></div>
+            <span>Estatísticas</span>
+          </div>
+        </button>
+
+        <button class="nav-link" data-tab="settings" onclick="switchTab('settings')">
+          <div class="nav-link-content">
+            <div class="nav-icon"><i data-lucide="settings" style="width: 18px; height: 18px;"></i></div>
+            <span>Configurações</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Sidebar User Profile Footer -->
+      <div class="sidebar-profile-card">
+        <div class="profile-card-header">
+          <div class="profile-avatar-box" id="sidebar-avatar">🌸</div>
+          <div style="flex: 1; overflow: hidden;">
+            <div class="profile-name" id="sidebar-name">Camila</div>
+            <div class="profile-stats">
+              <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i>
+              <span id="sidebar-level">Nível 1</span>
+              <span>•</span>
+              <span id="sidebar-streak-text">0d 🔥</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="switchTab('settings')" style="width: 100%; margin-top: 10px; padding: 6px 12px; font-size: 11px;">
+          <span>Editar Perfil</span>
+          <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area with 7 Views -->
+    <main class="app-content">
+      
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="view-dashboard" class="animate-fade-in">
+        <!-- Hero Greeting Banner -->
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 12px;">
+                <i data-lucide="sparkles" style="width: 13px; height: 13px;"></i>
+                <span id="dash-date-text">Hoje • Seu Treinador Diário</span>
+              </div>
+              <h1 id="dash-greeting" style="font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">Bom dia, Camila!</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Hoje é mais uma oportunidade de ouro para nutrir seu corpo, fortalecer sua mente e manter sua constância.
+              </p>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="openFinishModal()" style="font-size: 14px; padding: 14px 26px;">
+                <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i>
+                <span>FINALIZAR MEU DIA</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Streak Warning Banner (shown if at_risk) -->
+        <div id="dash-risk-banner" style="display: none; margin-bottom: 24px; border-radius: var(--radius-lg); border: 1px solid rgba(245, 158, 11, 0.5); background: linear-gradient(90deg, rgba(245, 158, 11, 0.15), rgba(15, 4, 10, 0.8)); padding: 20px;">
+          <div style="display: flex; gap: 16px; align-items: flex-start;">
+            <div style="background: rgba(245, 158, 11, 0.2); padding: 10px; border-radius: 12px; color: var(--amber-400);">
+              <i data-lucide="alert-triangle" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: #fde68a;">⚠️ Sua ofensiva está em risco!</h3>
+              <p style="font-size: 13px; color: #fef3c7; margin-top: 4px; line-height: 1.5;">
+                Você já se afastou da sua rotina ontem. Hoje é uma nova oportunidade de retomar o controle. Não deixe dois dias difíceis quebrarem sua sequência. Faça o seu melhor hoje!
+              </p>
+              <button class="btn btn-primary" onclick="switchTab('mission')" style="margin-top: 10px; padding: 8px 16px; font-size: 12px; background: var(--amber-500); color: black;">
+                Cumprir hábitos agora
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Streak Highlight Card -->
+        <div class="card glow-streak" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(80, 16, 52, 0.4), rgba(23, 6, 18, 0.9)); border-color: rgba(236, 72, 153, 0.35);">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <div style="width: 84px; height: 84px; border-radius: 24px; background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.4); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(236, 72, 153, 0.4);">
+                <i data-lucide="flame" style="width: 48px; height: 48px; color: var(--pink-500);"></i>
+              </div>
+              <div>
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                  <span id="dash-streak-number" style="font-size: 44px; font-weight: 900; line-height: 1;">0</span>
+                  <span style="font-size: 18px; font-weight: 800; text-transform: uppercase; color: var(--pink-400);">Dias de Ofensiva</span>
+                </div>
+                <p id="dash-streak-message" style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">
+                  Você está construindo uma versão melhor de si mesma. Não pare agora!
+                </p>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 24px; border-left: 1px solid rgba(236, 72, 153, 0.25); padding-left: 24px;">
+              <div>
+                <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; display: block;">Recorde Pessoal</span>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i data-lucide="trophy" style="width: 18px; height: 18px; color: var(--amber-400);"></i>
+                  <span id="dash-best-streak" style="font-size: 20px; font-weight: 900;">0 dias</span>
+                </div>
+              </div>
+              <div>
+                <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; display: block;">Consistência Semanal</span>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i data-lucide="shield-check" style="width: 18px; height: 18px; color: var(--pink-400);"></i>
+                  <span id="dash-weekly-consistency" style="font-size: 20px; font-weight: 900; color: var(--pink-300);">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivational Quote Pill -->
+        <div class="card" style="margin-bottom: 24px; padding: 20px 24px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <span style="font-size: 24px;">💡</span>
+              <div>
+                <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--pink-400);">Pílula de Motivação</span>
+                <blockquote id="quote-text" style="font-size: 15px; font-weight: 600; color: #ffffff; font-style: italic; margin-top: 4px; line-height: 1.5;">
+                  "Você não precisa estar motivada todos os dias. Precisa apenas continuar."
+                </blockquote>
+                <span id="quote-author" style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 4px;">— FOCUSFIT Coach</span>
+              </div>
+            </div>
+            <button class="icon-btn" onclick="drawNewMotivationalQuote()" title="Sortear outra frase">
+              <i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mission Checklist Quick Glance + Hydration Quick Tracker -->
+        <div class="grid-2">
+          <!-- Left: Today's mission preview -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                  <i data-lucide="check-circle-2" style="width: 18px; height: 18px; color: var(--pink-400);"></i>
+                  Minha Missão de Hoje
+                </h3>
+                <span id="dash-mission-summary" style="font-size: 12px; color: var(--text-muted);">0 de 6 hábitos realizados</span>
+              </div>
+              <button class="btn-ghost" onclick="switchTab('mission')" style="font-size: 12px; color: var(--pink-400); font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                Ver todos <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+              </button>
+            </div>
+
+            <div class="progress-container" style="margin-bottom: 18px;">
+              <div class="progress-bar-fill" id="dash-mission-progress" style="width: 0%;"></div>
+            </div>
+
+            <div id="dash-quick-habits" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Inserted by JS -->
+            </div>
+          </div>
+
+          <!-- Right: Hydration & Routine -->
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Hydration Widget -->
+            <div class="card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(236,72,153,0.15); display: flex; align-items: center; justify-content: center; color: var(--pink-400);">
+                    <i data-lucide="droplets" style="width: 20px; height: 20px;"></i>
+                  </div>
+                  <div>
+                    <h4 style="font-size: 14px; font-weight: 800;">Hidratação Diária</h4>
+                    <span id="dash-water-target-label" style="font-size: 11px; color: var(--text-muted);">Meta: 2500 ml</span>
+                  </div>
+                </div>
+                <span id="dash-water-percent" style="font-size: 16px; font-weight: 900; color: var(--pink-400);">0%</span>
+              </div>
+
+              <div class="progress-container" style="margin-bottom: 16px; height: 10px;">
+                <div class="progress-bar-fill" id="dash-water-progress" style="width: 0%;"></div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+                <span style="font-size: 26px; font-weight: 900;"><span id="dash-water-amount">0</span> <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);">ml consumidos</span></span>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" onclick="addWater(250)" style="flex: 1; padding: 10px; font-size: 12px;">
+                  <i data-lucide="plus" style="width: 14px; height: 14px;"></i> +250 ml (Copo)
+                </button>
+                <button class="btn btn-secondary" onclick="addWater(-250)" style="padding: 10px 14px; font-size: 12px;">
+                  <i data-lucide="minus" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Meal Planning Teaser -->
+            <div class="card" style="padding: 20px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--pink-400); display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="utensils" style="width: 14px; height: 14px;"></i> Planejamento do Dia
+                </span>
+                <button class="btn-ghost" onclick="switchTab('planning')" style="font-size: 11px; border: none; cursor: pointer; color: var(--text-muted);">Ver tudo</button>
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                Mantenha a tranquilidade com sua alimentação sabendo exatamente o que preparou para hoje.
+              </p>
+              <button class="btn btn-secondary" onclick="switchTab('planning')" style="width: 100%; margin-top: 12px; font-size: 12px; padding: 8px;">
+                Organizar Minhas Refeições
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. MINHA MISSÃO VIEW -->
+      <section id="view-mission" class="animate-fade-in" style="display: none;">
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 10px;">
+                <i data-lucide="check-square" style="width: 13px; height: 13px;"></i>
+                <span id="mission-date-label">Hoje</span>
+              </div>
+              <h1 style="font-size: 28px; font-weight: 900;">Minha Missão de Hoje</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Marque suas escolhas conscientes ao longo do dia. O foco é a consistência no tempo, e não a perfeição extrema.
+              </p>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="openFinishModal()" style="padding: 14px 26px; font-size: 14px;">
+                <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i>
+                <span>FINALIZAR MEU DIA</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(236,72,153,0.2);">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+              <span id="mission-progress-label">0 de 6 hábitos concluídos</span>
+              <span id="mission-progress-percent" style="color: var(--pink-400); font-weight: 800;">0%</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar-fill" id="mission-full-progress" style="width: 0%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+              <span id="mission-criteria-note">Meta mínima para validar o dia: 4 hábitos</span>
+              <span id="mission-status-pill" style="color: var(--pink-400); font-weight: 700;">Em andamento</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full Hydration Card with Visual Cups -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(236,72,153,0.15); display: flex; align-items: center; justify-content: center; color: var(--pink-400);">
+                <i data-lucide="droplets" style="width: 22px; height: 22px;"></i>
+              </div>
+              <div>
+                <h3 style="font-size: 16px; font-weight: 800;">Controle de Hidratação Diária</h3>
+                <span id="full-water-meta-label" style="font-size: 12px; color: var(--text-muted);">Meta diária: 2500 ml</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" onclick="addWater(250)" style="padding: 8px 14px; font-size: 12px;">
+                <i data-lucide="plus" style="width: 14px; height: 14px;"></i> +250 ml (Copo)
+              </button>
+              <button class="btn btn-secondary" onclick="addWater(500)" style="padding: 8px 14px; font-size: 12px;">
+                <i data-lucide="plus" style="width: 14px; height: 14px;"></i> +500 ml (Garrafa)
+              </button>
+            </div>
+          </div>
+
+          <!-- 10 Visual Cups Grid -->
+          <div class="water-cups-row" id="water-cups-container">
+            <!-- Populated by JS -->
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+            <span>Total registrado hoje: <strong id="full-water-text" style="color: white;">0 ml</strong></span>
+            <span id="water-goal-reached-badge" style="display: none; color: var(--pink-400); font-weight: 800;">🎉 Meta de água batida hoje! (+100 XP)</span>
+          </div>
+        </div>
+
+        <!-- Habits List Header & Add Custom Habit -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 style="font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span>Hábitos & Disciplina</span>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 400;">(Clique para marcar)</span>
+          </h2>
+          <button class="btn btn-secondary" onclick="toggleAddHabitForm()" style="padding: 8px 16px; font-size: 12px;">
+            <i data-lucide="plus" style="width: 14px; height: 14px;"></i> Adicionar Hábito
+          </button>
+        </div>
+
+        <!-- Add Custom Habit Form -->
+        <div id="add-habit-form-container" class="card" style="display: none; margin-bottom: 20px; border-color: rgba(236,72,153,0.4);">
+          <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 14px;">Criar Novo Hábito Personalizado</h4>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Nome do Hábito:</label>
+              <input type="text" id="new-habit-label" class="form-input" placeholder="Ex: Não tomar refrigerante ou fritura">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Descrição ou Dica:</label>
+              <input type="text" id="new-habit-desc" class="form-input" placeholder="Ex: Focar em água com limão ou suco natural">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn btn-ghost" onclick="toggleAddHabitForm()">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveNewHabit()">Salvar Hábito</button>
+          </div>
+        </div>
+
+        <!-- Habits List -->
+        <div id="mission-habits-list" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Mindset Footer -->
+        <div class="card" style="margin-top: 24px; padding: 18px 24px; display: flex; gap: 14px; align-items: flex-start; background: rgba(0,0,0,0.3);">
+          <i data-lucide="heart" style="width: 22px; height: 22px; color: var(--pink-400); flex-shrink: 0; margin-top: 2px;"></i>
+          <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+            <strong style="color: var(--text-secondary);">Filosofia FOCUSFIT:</strong> Comer bem é um ato de autocuidado e energia para seus dias. Se por algum motivo você não conseguir cumprir todos os hábitos hoje, não se cobre excessivamente. Mantenha a presença e lembre-se: a consistência no longo prazo sempre vence a busca pela perfeição imediata.
+          </p>
+        </div>
+      </section>
+
+      <!-- 3. PLANEJAMENTO VIEW -->
+      <section id="view-planning" class="animate-fade-in" style="display: none;">
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 10px;">
+                <i data-lucide="utensils" style="width: 13px; height: 13px;"></i>
+                <span>Rotina Alimentar</span>
+              </div>
+              <h1 style="font-size: 28px; font-weight: 900;">Planejamento de Refeições</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Organize seus horários, defina seus pratos e anote o que consumiu. Seu guia pessoal para manter o foco ao longo do dia.
+              </p>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="openAddMealModal()" style="padding: 12px 22px; font-size: 13px;">
+                <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                <span>Adicionar Refeição</span>
+              </button>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(236,72,153,0.2); display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary);">
+            <span>Refeições seguidas hoje: <strong id="planning-followed-summary" style="color: var(--pink-400);">0 de 4 (0%)</strong></span>
+            <span>Marque "Segui o planejado" para somar +40 XP</span>
+          </div>
+        </div>
+
+        <!-- Non-medical Disclaimer -->
+        <div class="card" style="margin-bottom: 24px; padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start; background: rgba(0,0,0,0.3);">
+          <i data-lucide="alert-circle" style="width: 20px; height: 20px; color: var(--pink-400); flex-shrink: 0; margin-top: 2px;"></i>
+          <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+            <strong style="color: #ffffff;">Aviso informativo:</strong> O FOCUSFIT é uma ferramenta de apoio a hábitos e organização pessoal. Não prescrevemos dietas médicas restritivas. Utilize este espaço para acompanhar o plano acordado com seu nutricionista ou médico.
+          </p>
+        </div>
+
+        <!-- Meals Grid -->
+        <div class="grid-2" id="meals-container">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- 4. CALENDÁRIO & HISTÓRICO VIEW -->
+      <section id="view-calendar" class="animate-fade-in" style="display: none;">
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 10px;">
+                <i data-lucide="calendar" style="width: 13px; height: 13px;"></i>
+                <span>Visão Histórica</span>
+              </div>
+              <h1 style="font-size: 28px; font-weight: 900;">Calendário de Ofensiva</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Acompanhe cada dia da sua jornada. Rosa representa vitórias diárias, amarelo pendências e vermelho dias em que você aprendeu com os deslizes.
+              </p>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <div class="card" style="padding: 10px 18px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4);">
+                <i data-lucide="flame" style="width: 20px; height: 20px; color: var(--pink-500);"></i>
+                <div>
+                  <span style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; display: block;">Ofensiva</span>
+                  <span id="cal-stat-streak" style="font-size: 16px; font-weight: 900;">0 dias</span>
+                </div>
+              </div>
+              <div class="card" style="padding: 10px 18px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4);">
+                <i data-lucide="trophy" style="width: 20px; height: 20px; color: var(--amber-400);"></i>
+                <div>
+                  <span style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; display: block;">Recorde</span>
+                  <span id="cal-stat-best" style="font-size: 16px; font-weight: 900;">0 dias</span>
+                </div>
+              </div>
+              <div class="card" style="padding: 10px 18px; display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4);">
+                <i data-lucide="sparkles" style="width: 20px; height: 20px; color: var(--pink-300);"></i>
+                <div>
+                  <span style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; display: block;">Consistência</span>
+                  <span id="cal-stat-consistency" style="font-size: 16px; font-weight: 900; color: var(--pink-300);">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div style="display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; font-size: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; border-radius: 4px; background: var(--pink-500); box-shadow: 0 0 8px var(--pink-500);"></div>
+            <span>Rosa: Concluído</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; border-radius: 4px; background: var(--amber-500);"></div>
+            <span>Amarelo: Pendente</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; border-radius: 4px; background: var(--rose-600);"></div>
+            <span>Vermelho: Não cumprido</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 14px; height: 14px; border-radius: 4px; background: #374151;"></div>
+            <span>Cinza: Futuro / Sem registro</span>
+          </div>
+        </div>
+
+        <!-- Interactive Month Calendar -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="calendar-month-title" style="font-size: 20px; font-weight: 900;">Outubro 2026</h2>
+            <div style="display: flex; gap: 8px;">
+              <button class="icon-btn" onclick="prevMonth()"><i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i></button>
+              <button class="btn btn-secondary" onclick="goToToday()" style="padding: 6px 14px; font-size: 12px;">Hoje</button>
+              <button class="icon-btn" onclick="nextMonth()"><i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i></button>
+            </div>
+          </div>
+
+          <div class="calendar-grid" id="calendar-days-header">
+            <div class="calendar-header-day">Dom</div>
+            <div class="calendar-header-day">Seg</div>
+            <div class="calendar-header-day">Ter</div>
+            <div class="calendar-header-day">Qua</div>
+            <div class="calendar-header-day">Qui</div>
+            <div class="calendar-header-day">Sex</div>
+            <div class="calendar-header-day">Sáb</div>
+          </div>
+
+          <div class="calendar-grid" id="calendar-days-container" style="margin-top: 10px;">
+            <!-- Cells generated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. CONQUISTAS VIEW -->
+      <section id="view-achievements" class="animate-fade-in" style="display: none;">
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 10px;">
+                <i data-lucide="trophy" style="width: 13px; height: 13px;"></i>
+                <span>Gamificação & Recompensas</span>
+              </div>
+              <h1 style="font-size: 28px; font-weight: 900;">Suas Conquistas</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Cada refeição consciente e dia de consistência rende pontos de experiência (XP) e desbloqueia medalhas especiais.
+              </p>
+            </div>
+            
+            <div class="card" style="padding: 16px 20px; min-width: 240px; background: rgba(0,0,0,0.5);">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+                <span id="ach-level-label" style="text-transform: uppercase; color: var(--text-muted); font-weight: 800;">Nível 1</span>
+                <span id="ach-level-title" style="color: var(--pink-400); font-weight: 900;">Iniciante</span>
+              </div>
+              <div style="font-size: 24px; font-weight: 900; margin-bottom: 8px;">
+                <span id="ach-total-xp">280</span> <span style="font-size: 12px; font-weight: 400; color: var(--text-muted);">XP Total</span>
+              </div>
+              <div class="progress-container" style="height: 8px; margin-bottom: 6px;">
+                <div class="progress-bar-fill" id="ach-level-progress" style="width: 20%;"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted);">
+                <span id="ach-xp-current">280 XP</span>
+                <span id="ach-xp-next">500 XP p/ próx nível</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(236,72,153,0.2); display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+            <span>Medalhas Desbloqueadas: <strong id="ach-unlocked-count" style="color: var(--pink-400);">0 de 10</strong></span>
+            <span style="color: var(--pink-300);">Consistência gera evolução permanente!</span>
+          </div>
+        </div>
+
+        <!-- Achievements Cards Grid -->
+        <div class="grid-3" id="achievements-container">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- 6. ESTATÍSTICAS VIEW -->
+      <section id="view-stats" class="animate-fade-in" style="display: none;">
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 10px;">
+                <i data-lucide="bar-chart-3" style="width: 13px; height: 13px;"></i>
+                <span>Análise de Desempenho</span>
+              </div>
+              <h1 style="font-size: 28px; font-weight: 900;">Estatísticas & Evolução</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Visualize seus dados reais de consistência, hábitos concluídos e hidratação ao longo do tempo.
+              </p>
+            </div>
+            <div style="display: flex; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 12px; border: 1px solid var(--border-color);">
+              <button class="btn btn-secondary active" id="btn-range-7" onclick="setStatsRange(7)" style="padding: 6px 12px; font-size: 12px;">7 dias</button>
+              <button class="btn btn-ghost" id="btn-range-14" onclick="setStatsRange(14)" style="padding: 6px 12px; font-size: 12px;">14 dias</button>
+              <button class="btn btn-ghost" id="btn-range-30" onclick="setStatsRange(30)" style="padding: 6px 12px; font-size: 12px;">30 dias</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="grid-4" style="margin-bottom: 24px;">
+          <div class="card" style="padding: 18px;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; display: block;">Ofensiva Atual</span>
+            <div style="font-size: 26px; font-weight: 900; margin: 4px 0;" id="kpi-streak">0d</div>
+            <span style="font-size: 11px; color: var(--text-muted);" id="kpi-best">Recorde: 0d</span>
+          </div>
+          <div class="card" style="padding: 18px;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; display: block;">Taxa de Consistência</span>
+            <div style="font-size: 26px; font-weight: 900; margin: 4px 0; color: var(--pink-300);" id="kpi-consistency">0%</div>
+            <span style="font-size: 11px; color: var(--text-muted);" id="kpi-days-count">0 de 7 dias</span>
+          </div>
+          <div class="card" style="padding: 18px;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; display: block;">Hábitos Realizados</span>
+            <div style="font-size: 26px; font-weight: 900; margin: 4px 0;" id="kpi-habits-done">0</div>
+            <span style="font-size: 11px; color: var(--text-muted);">No período selecionado</span>
+          </div>
+          <div class="card" style="padding: 18px;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; display: block;">Total Registrado</span>
+            <div style="font-size: 26px; font-weight: 900; margin: 4px 0;" id="kpi-total-logged">0d</div>
+            <span style="font-size: 11px; color: var(--text-muted);">Dias no histórico</span>
+          </div>
+        </div>
+
+        <!-- Chart 1: Habits Over Time -->
+        <div class="card" style="margin-bottom: 24px;">
+          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Evolução de Hábitos Concluídos por Dia</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Número de hábitos saudáveis cumpridos diariamente</p>
+          <div style="position: relative; height: 260px; width: 100%;">
+            <canvas id="chart-habits-evolution"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Chart 2: Habit Adherence -->
+          <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Aderência por Hábito (%)</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Quais hábitos você mais manteve com consistência</p>
+            <div style="position: relative; height: 240px; width: 100%;">
+              <canvas id="chart-habits-bar"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Water Intake -->
+          <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">Ingestão de Água Diária (ml)</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Consumo de hidratação registrado ao longo do período</p>
+            <div style="position: relative; height: 240px; width: 100%;">
+              <canvas id="chart-water-bar"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. CONFIGURAÇÕES VIEW -->
+      <section id="view-settings" class="animate-fade-in" style="display: none;">
+        <div class="banner-hero" style="margin-bottom: 24px;">
+          <div class="banner-glow-circle"></div>
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; position: relative; z-index: 2;">
+            <div>
+              <div class="pill-badge" style="margin-bottom: 10px;">
+                <i data-lucide="settings" style="width: 13px; height: 13px;"></i>
+                <span>Personalização</span>
+              </div>
+              <h1 style="font-size: 28px; font-weight: 900;">Configurações & Perfil</h1>
+              <p style="color: var(--text-secondary); font-size: 14px; max-width: 540px; margin-top: 4px;">
+                Ajuste seus horários de lembrete, critérios de validação da ofensiva, preferências de som e faça backup dos seus dados.
+              </p>
+            </div>
+            <div id="settings-save-alert" style="display: none; background: rgba(236,72,153,0.2); border: 1px solid var(--pink-500); padding: 8px 16px; border-radius: var(--radius-md); color: var(--pink-300); font-size: 12px; font-weight: 800;">
+              ✓ Configurações salvas!
+            </div>
+          </div>
+        </div>
+
+        <form id="settings-form" onsubmit="handleSaveSettings(event)" style="display: flex; flex-direction: column; gap: 24px;">
+          
+          <!-- Identity Card -->
+          <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="user" style="width: 18px; height: 18px; color: var(--pink-400);"></i> Identidade & Perfil
+            </h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Seu Nome ou Apelido:</label>
+                <input type="text" id="setting-name" class="form-input" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lema ou Título:</label>
+                <input type="text" id="setting-nickname" class="form-input">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Escolha seu Avatar:</label>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="avatar-picker-container">
+                <!-- Buttons by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Reminders Card -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+              <h3 style="font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="clock" style="width: 18px; height: 18px; color: var(--pink-400);"></i> Horários de Lembretes Diários
+              </h3>
+              <button type="button" class="btn btn-secondary" onclick="sendTestNotification()" style="font-size: 11px; padding: 6px 12px;">
+                Testar Lembrete Agora
+              </button>
+            </div>
+
+            <div class="grid-4" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+              <div class="form-group">
+                <label class="form-label">Café da Manhã</label>
+                <input type="time" id="remind-breakfast" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Almoço</label>
+                <input type="time" id="remind-lunch" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lanche da Tarde</label>
+                <input type="time" id="remind-snack" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Jantar</label>
+                <input type="time" id="remind-dinner" class="form-input">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Revisão do Dia</label>
+                <input type="time" id="remind-review" class="form-input">
+              </div>
+            </div>
+
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: gap: 10px;">
+              <div>
+                <span style="font-size: 13px; font-weight: 700; display: block;">Notificações no Navegador</span>
+                <span id="browser-notif-status" style="font-size: 11px; color: var(--text-muted);">Status: pendente</span>
+              </div>
+              <button type="button" class="btn btn-secondary" onclick="requestBrowserPermission()" style="font-size: 12px; padding: 8px 16px;">
+                Autorizar Notificações
+              </button>
+            </div>
+          </div>
+
+          <!-- Targets & Thresholds -->
+          <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="trophy" style="width: 18px; height: 18px; color: var(--amber-400);"></i> Metas Pessoais & Critérios de Conclusão
+            </h3>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Mínimo de hábitos para validar dia de ofensiva:</label>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <input type="range" id="setting-min-habits" min="1" max="6" style="flex: 1; accent-color: var(--pink-500);" oninput="updateMinHabitsDisplay(this.value)">
+                  <span id="setting-min-habits-val" style="font-size: 16px; font-weight: 900; color: var(--pink-400); width: 60px;">4 de 6</span>
+                </div>
+                <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Você define o seu critério de vitória diária.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Meta Diária de Água (ml):</label>
+                <input type="number" id="setting-water-target" class="form-input" min="1000" max="6000" step="250">
+                <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Recomendado: 2500 a 3500 ml para adultos ativos.</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="padding: 14px 32px; font-size: 14px;">
+              Salvar Todas as Configurações
+            </button>
+          </div>
+        </form>
+
+        <!-- Simulator Tools (Testing Presets) -->
+        <div class="card" style="margin-top: 24px; border-color: rgba(236,72,153,0.4); background: linear-gradient(180deg, rgba(80,16,52,0.3), rgba(23,6,18,0.95));">
+          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="sparkles" style="width: 18px; height: 18px; color: var(--pink-300);"></i> Simulador de Cenários & Testes de Ofensiva
+          </h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            Teste instantaneamente as regras da ofensiva (7 dias, aviso de 1 falha em risco, quebra após 2 falhas consecutivas e celebrações):
+          </p>
+
+          <div class="grid-4">
+            <button class="card" onclick="runScenario('7_days_streak')" style="text-align: left; cursor: pointer; border-color: rgba(236,72,153,0.4); background: rgba(236,72,153,0.1);">
+              <span style="font-size: 13px; font-weight: 800; color: var(--pink-300); display: block; margin-bottom: 4px;">🔥 Ofensiva de 7 Dias</span>
+              <span style="font-size: 11px; color: var(--text-muted);">Ativa sequência com confetes e marco comemorativo</span>
+            </button>
+            <button class="card" onclick="runScenario('at_risk_1_fail')" style="text-align: left; cursor: pointer; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.1);">
+              <span style="font-size: 13px; font-weight: 800; color: var(--amber-400); display: block; margin-bottom: 4px;">⚠️ Alerta de Risco</span>
+              <span style="font-size: 11px; color: var(--text-muted);">Simula 1 falha ontem e aciona banner de atenção</span>
+            </button>
+            <button class="card" onclick="runScenario('broken_2_fails')" style="text-align: left; cursor: pointer; border-color: rgba(225,29,72,0.4); background: rgba(225,29,72,0.1);">
+              <span style="font-size: 13px; font-weight: 800; color: var(--rose-400); display: block; margin-bottom: 4px;">💔 Quebra (2 Falhas)</span>
+              <span style="font-size: 11px; color: var(--text-muted);">Encerra sequência atual preservando o recorde anterior</span>
+            </button>
+            <button class="card" onclick="runScenario('reset')" style="text-align: left; cursor: pointer;">
+              <span style="font-size: 13px; font-weight: 800; color: #ffffff; display: block; margin-bottom: 4px;">🔄 Restaurar Padrão</span>
+              <span style="font-size: 11px; color: var(--text-muted);">Retorna o dia atual para pendente</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Backup Card -->
+        <div class="card" style="margin-top: 24px;">
+          <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 6px;">Backup & Exportação dos Dados</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            Seus dados estão salvos localmente no navegador. Você pode baixar uma cópia em JSON ou restaurá-la a qualquer momento.
+          </p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn btn-secondary" onclick="exportAppData()">
+              <i data-lucide="download" style="width: 16px; height: 16px;"></i> Exportar Dados (JSON)
+            </button>
+            <label class="btn btn-secondary" style="cursor: pointer;">
+              <i data-lucide="upload" style="width: 16px; height: 16px;"></i> Importar Backup (JSON)
+              <input type="file" id="import-file-input" accept=".json" onchange="handleImportBackup(event)" style="display: none;">
+            </label>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+      <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i>
+      <span>Início</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="mission" onclick="switchTab('mission')">
+      <i data-lucide="check-square" style="width: 20px; height: 20px;"></i>
+      <span>Missão</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="planning" onclick="switchTab('planning')">
+      <i data-lucide="utensils" style="width: 20px; height: 20px;"></i>
+      <span>Dieta</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="calendar" onclick="switchTab('calendar')">
+      <i data-lucide="calendar" style="width: 20px; height: 20px;"></i>
+      <span>Histórico</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="achievements" onclick="switchTab('achievements')">
+      <i data-lucide="trophy" style="width: 20px; height: 20px;"></i>
+      <span>Conquistas</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="stats" onclick="switchTab('stats')">
+      <i data-lucide="bar-chart-3" style="width: 20px; height: 20px;"></i>
+      <span>Gráficos</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="settings" onclick="switchTab('settings')">
+      <i data-lucide="settings" style="width: 20px; height: 20px;"></i>
+      <span>Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. FINALIZAR MEU DIA MODAL -->
+  <div class="modal-overlay" id="modal-finish-day">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeFinishModal()"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
+
+      <div id="finish-step-main">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(236,72,153,0.2); border: 1px solid rgba(236,72,153,0.4); display: flex; align-items: center; justify-content: center; color: var(--pink-400);">
+            <i data-lucide="check-circle-2" style="width: 24px; height: 24px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 900;">Finalizar Meu Dia</h3>
+            <span style="font-size: 12px; color: var(--text-muted);">Confirme seus hábitos e proteja sua ofensiva</span>
+          </div>
+        </div>
+
+        <div id="finish-criteria-banner" class="card" style="margin-bottom: 18px; padding: 14px 18px; border-color: rgba(236,72,153,0.4); background: rgba(236,72,153,0.1);">
+          <!-- Criteria review injected by JS -->
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 18px;">
+          <div class="card" style="padding: 12px;">
+            <span style="font-size: 11px; color: var(--text-muted);">Hábitos Concluídos</span>
+            <div style="font-size: 18px; font-weight: 800; margin-top: 2px;" id="modal-habits-count">0 / 6</div>
+          </div>
+          <div class="card" style="padding: 12px;">
+            <span style="font-size: 11px; color: var(--text-muted);">Água Ingerida</span>
+            <div style="font-size: 18px; font-weight: 800; margin-top: 2px; color: var(--pink-400);" id="modal-water-count">0 ml</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Como estava seu nível de energia hoje?</label>
+          <div style="display: flex; gap: 8px;" id="finish-energy-stars">
+            <!-- 5 star buttons -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Controle da fome e escolhas conscientes:</label>
+          <div style="display: flex; gap: 8px;" id="finish-hunger-stars">
+            <!-- 5 star buttons -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reflexão do dia (opcional):</label>
+          <textarea id="finish-notes" class="form-textarea" rows="2" placeholder="Ex: Segui meu almoço perfeitamente, bebi bastante água e resisti aos doces no trabalho..."></textarea>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+          <button class="btn btn-primary" onclick="confirmFinishDay('completed')" style="padding: 14px;">
+            <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i>
+            <span>Confirmar Dia Concluído (+200 XP)</span>
+          </button>
+          <button class="btn btn-danger" onclick="showFailStep()" style="padding: 10px; font-size: 12px;">
+            <i data-lucide="x-circle" style="width: 14px; height: 14px;"></i>
+            <span>Registrar que não cumpri hoje</span>
+          </button>
+          <button class="btn btn-ghost" onclick="closeFinishModal()" style="font-size: 12px; text-align: center;">
+            Continuar o dia e finalizar mais tarde
+          </button>
+        </div>
+      </div>
+
+      <!-- Sub-step for acknowledging a missed day with positive reinforcement -->
+      <div id="finish-step-fail" style="display: none; text-align: center; padding: 10px 0;">
+        <div style="width: 56px; height: 56px; border-radius: 20px; background: rgba(245,158,11,0.2); color: var(--amber-400); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+          <i data-lucide="heart" style="width: 30px; height: 30px;"></i>
+        </div>
+        <h3 style="font-size: 20px; font-weight: 800;">Sem culpa, com consciência</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 8px 0 20px;">
+          Dias difíceis acontecem. Registrar com honestidade é sinal de maturidade. Seu histórico e recorde anterior <strong>nunca são apagados</strong>.
+        </p>
+        <div class="card" style="text-align: left; padding: 12px 16px; margin-bottom: 20px; font-size: 12px; background: rgba(0,0,0,0.4);">
+          <strong style="color: var(--pink-300); display: block; margin-bottom: 2px;">Regra de Proteção FOCUSFIT:</strong>
+          Uma única falha não quebra sua ofensiva imediatamente — apenas gera um aviso amigável. Retome amanhã e sua sequência continua firme!
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn btn-primary" onclick="confirmFinishDay('failed')" style="background: var(--amber-500); color: black;">
+            Salvar Registro e Focar em Amanhã
+          </button>
+          <button class="btn btn-ghost" onclick="backToMainFinishStep()">Voltar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MILESTONE CELEBRATION MODAL -->
+  <div class="modal-overlay" id="modal-milestone">
+    <div class="modal-box" style="text-align: center; padding: 36px 28px;">
+      <button class="modal-close-btn" onclick="closeMilestoneModal()"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
+
+      <div style="width: 90px; height: 90px; border-radius: 28px; background: rgba(236,72,153,0.2); border: 1px solid rgba(236,72,153,0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 0 35px rgba(236,72,153,0.5);" class="glow-streak">
+        <i data-lucide="award" id="milestone-modal-icon" style="width: 50px; height: 50px; color: var(--pink-400);"></i>
+      </div>
+
+      <div class="pill-badge" style="margin-bottom: 12px;">Marco Histórico</div>
+      <h2 id="milestone-modal-title" style="font-size: 24px; font-weight: 900; margin-bottom: 8px;">🔥 7 DIAS DE OFENSIVA!</h2>
+      <p id="milestone-modal-subtitle" style="font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 24px;">
+        Uma semana inteira de consistência! Você está construindo uma versão melhor de si mesma. Não pare agora!
+      </p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn btn-primary" onclick="closeMilestoneModal()" style="padding: 14px; font-size: 14px;">
+          Continuar Focada! 🚀
+        </button>
+        <button class="btn btn-secondary" onclick="triggerExtraConfetti()" style="font-size: 12px;">
+          Soltar mais confetes 🎉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DAY DETAILS MODAL (from Calendar click) -->
+  <div class="modal-overlay" id="modal-day-details">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeDayDetailsModal()"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div id="day-detail-icon-wrap" style="width: 44px; height: 44px; border-radius: 14px; background: rgba(236,72,153,0.2); display: flex; align-items: center; justify-content: center; color: var(--pink-400);">
+          <i data-lucide="calendar" style="width: 22px; height: 22px;"></i>
+        </div>
+        <div>
+          <h3 id="day-detail-title" style="font-size: 16px; font-weight: 800;">29 de Outubro</h3>
+          <span id="day-detail-status" style="font-size: 12px; text-transform: uppercase; font-weight: 800; color: var(--pink-400);">Concluído</span>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 16px;">
+        <div class="card" style="padding: 12px;">
+          <span style="font-size: 11px; color: var(--text-muted);">Hábitos Cumpridos</span>
+          <div id="day-detail-habits" style="font-size: 16px; font-weight: 800; margin-top: 2px;">0 / 6</div>
+        </div>
+        <div class="card" style="padding: 12px;">
+          <span style="font-size: 11px; color: var(--text-muted);">Água Total</span>
+          <div id="day-detail-water" style="font-size: 16px; font-weight: 800; margin-top: 2px; color: var(--pink-400);">0 ml</div>
+        </div>
+      </div>
+
+      <div id="day-detail-notes-box" class="card" style="margin-bottom: 16px; padding: 12px; font-size: 12px; display: none;">
+        <strong style="color: var(--text-muted); display: block; margin-bottom: 2px;">Reflexão anotada:</strong>
+        <p id="day-detail-notes-text" style="color: white; font-style: italic;"></p>
+      </div>
+
+      <div style="border-top: 1px solid var(--border-color); padding-top: 14px;">
+        <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px;">Ajustar status deste dia:</span>
+        <div class="grid-2">
+          <button class="btn btn-secondary" onclick="updateCurrentDetailDayStatus('completed')">Marcar Concluído</button>
+          <button class="btn btn-danger" onclick="updateCurrentDetailDayStatus('failed')">Marcar Falha</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MEAL ADD / EDIT MODAL -->
+  <div class="modal-overlay" id="modal-meal-form">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeMealModal()"><i data-lucide="x" style="width: 18px; height: 18px;"></i></button>
+      <h3 id="meal-modal-title" style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">Nova Refeição Planejada</h3>
+
+      <form id="meal-form" onsubmit="handleSaveMealForm(event)">
+        <input type="hidden" id="meal-edit-id">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Nome da Refeição:</label>
+            <input type="text" id="meal-title-input" class="form-input" required placeholder="Ex: Lanche da Tarde">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Horário Previsto:</label>
+            <input type="time" id="meal-time-input" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Planejamento (o que você planeja comer):</label>
+          <textarea id="meal-plan-input" class="form-textarea" rows="2" required placeholder="Ex: 1 banana com canela e 1 copo de iogurte natural"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">O que comi na prática (anotação real):</label>
+          <textarea id="meal-actual-input" class="form-textarea" rows="2" placeholder="Ex: Comi exatamente o planejado"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Dica ou observação pessoal:</label>
+          <input type="text" id="meal-notes-input" class="form-input" placeholder="Ex: Beber 1 copo d'água antes">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+          <button type="button" class="btn btn-ghost" onclick="closeMealModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Refeição</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules in Order -->
+  <script src="js/data.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/streak.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
